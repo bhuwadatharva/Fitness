@@ -18,12 +18,14 @@ import axios from "axios";
 import * as Notifications from "expo-notifications";
 import * as TaskManager from "expo-task-manager";
 import { useFocusEffect } from "@react-navigation/native";
+import Chatbot from "./Chatbot";
 
 
 export default function HomeScreen({ navigation }) {
   const { setTasks, totalDays, tasks } = useContext(TaskContext);
   const [user, setUser] = useState(null);
   const [streak, setStreak] = useState(0);
+  const [chatVisible, setChatVisible] = useState(false);
   const progress = streak / totalDays;
 
   useEffect(() => {
@@ -318,6 +320,19 @@ const registerBackgroundTask = async () => {
         <Text style={styles.endOfDayButtonText}>Submit Tasks ✅</Text>
       </TouchableOpacity>
     </ScrollView>
+    <TouchableOpacity
+        style={styles.chatButton}
+        onPress={() => setChatVisible(!chatVisible)}
+      >
+        <Ionicons name="chatbubble-ellipses" size={50} color="#FF6347" />
+      </TouchableOpacity>
+
+      {/* Conditionally Render Chatbot */}
+      {chatVisible && (
+        <View style={styles.chatContainer}>
+          <Chatbot />
+        </View>
+      )}
   </View>
 );
 }
@@ -340,4 +355,33 @@ completedText: { color: "#4CAF50", fontSize: 16, fontWeight: "bold", marginTop: 
 scrollableContent: { paddingBottom: 60 },
 endOfDayButton: { backgroundColor: "#FF6347", padding: 15, borderRadius: 8, marginTop: 20, alignItems: "center" },
 endOfDayButtonText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
+chatButton: {
+  position: "absolute",
+  bottom: 30,
+  right: 30,
+  backgroundColor: "#fff",
+  borderRadius: 50,
+  padding: 10,
+  elevation: 5, // Android shadow
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.3,
+  shadowRadius: 3,
+},
+
+// Chatbot Container (Hidden Initially)
+chatContainer: {
+  position: "absolute",
+  bottom: 80, // Above the chat button
+  right: 20,
+  width: "90%",
+  height: "50%",
+  backgroundColor: "#fff",
+  borderRadius: 10,
+  elevation: 5,
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.3,
+  shadowRadius: 3,
+},
 });
