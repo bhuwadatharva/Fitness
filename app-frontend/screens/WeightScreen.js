@@ -1,18 +1,48 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from "react-native";
-import { useNavigation } from '@react-navigation/native';
-
+import { useNavigation, useRoute } from "@react-navigation/native";
+import axios from "axios";
+import Toast from "react-native-toast-message";
 const { width } = Dimensions.get("window");
 
 const WeightScreen = () => {
+  const navigation = useNavigation();
+  const route = useRoute();
   const [unit, setUnit] = useState("kg");
   const [weight, setWeight] = useState(75);
-  const navigation = useNavigation();
+  const token = route.params?.token;
+
 
   // Generate weight data (50kg - 150kg or 110lbs - 330lbs)
   const weightKgData = Array.from({ length: 101 }, (_, i) => 50 + i);
   const weightLbsData = Array.from({ length: 221 }, (_, i) => 110 + i);
   const weightData = unit === "kg" ? weightKgData : weightLbsData;
+
+  const handleNext = async () => {
+    const formattedWeight = unit === "kg" ? `${weight} kg` : `${weight} lbs`;
+  
+    try {
+      const response = await axios.put(
+        `http://192.168.76.106:4000/user/weight`,
+        { weight: formattedWeight }, // Corrected variable usage
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        Toast.show({ type: "success", text1: "Weight updated successfully" });
+        navigation.navigate("Type", { token });
+      } else {
+        Toast.show({ type: "error", text1: "Failed to update Weight" });
+      }
+    } catch (error) {
+      console.error("Error updating weight:", error);
+      Toast.show({ type: "error", text1: "Error updating Weight" });
+    }
+  };
+  
 
   return (
     <View style={styles.container}>
@@ -56,7 +86,7 @@ const WeightScreen = () => {
       <Text style={styles.selectedWeight}>{weight} {unit}</Text>
 
       {/* Next Button */}
-      <TouchableOpacity style={styles.nextButton} onPress={() => navigation.navigate("Login")}>
+      <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
         <Text style={styles.nextText}>Next</Text>
       </TouchableOpacity>
     </View>

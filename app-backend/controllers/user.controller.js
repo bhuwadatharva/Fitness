@@ -109,3 +109,56 @@ module.exports.updateTasks = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+
+module.exports.heightMeasure = async (req, res) =>
+{
+  try
+  {
+    const userId = req.user._id;
+    const height = req.body.height;
+    const updatedUser = await userService.heightMeasure(userId, height);
+    res.status(200).json({message: "Height updated successfully", height: updatedUser.height});
+  }
+  catch(error)
+  {
+    console.error("Error updating height:", error.message);
+    res.status(400).json({error: error.message});
+  }
+};
+
+module.exports.weightMeasure = async(req, res) => {
+  try {
+    const userId = req.user._id;
+    const weight = req.body.weight;
+    const updatedUser = await userService.weightMeasure(userId, weight);
+    res.status(200).json({ message: "Weight updated successfully", weight: updatedUser.weight });
+  } catch (error) {
+    console.error("Error updating weight:", error.message);
+    res.status(400).json({ error: error.message });
+  }
+};
+
+module.exports.genderPicker = async(req, res) => {
+  try {
+    const userId = req.user._id;
+    const gender = req.body.gender;
+    const updatedUser = await userService.genderPicker(userId, gender);
+    res.status(200).json({ message:"Gender Update Succesfully", gender: updatedUser});
+  }catch (error) {
+    console.error("Error updating gender:", error.message);
+    res.status(400).json({ error: error.message });
+  }
+};
+
+module.exports.typePicker = async(req, res) => {
+  try {
+    const userId = req.user._id;
+    const type = req.body.type;
+    const updatedUser = await userService.typePicker(userId, type);
+    res.status(200).json({ message:"Type Update Succesfully", type: updatedUser});
+  }catch (error) {
+    console.error("Error updating type:", error.message);
+    res.status(400).json({ error: error.message });
+  }
+};

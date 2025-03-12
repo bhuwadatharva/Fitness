@@ -1,22 +1,96 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, Button, ActivityIndicator, StyleSheet, Image } from "react-native";
+import { 
+  View, Text, Button, ActivityIndicator, StyleSheet, Image, Alert 
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { TaskContext } from "../TaskContext";
 
-const workouts = [
-  { name: "Push-Ups", details: "Target: Chest, shoulders, triceps, and core.\nReps: 15–25 per set (3–5 sets)", image: require("../assets/pushups.jpg"), duration: 120 },
-  { name: "Squats", details: "Target: Quads, hamstrings, glutes, and core.\nReps: 20–30 per set (3–5 sets)", image: require("../assets/squats.jpg"), duration: 120 },
-  { name: "Plank", details: "Target: Abs, lower back, shoulders, and endurance.\nHold: 30 sec – 1 min (3 sets)", image: require("../assets/plank.jpg"), duration: 60 },
-  { name: "Burpees", details: "Target: Cardio, legs, core, and arms.\nReps: 10–20 per set (3–5 sets)", image: require("../assets/burpees.jpg"), duration: 120 },
-  { name: "Mountain Climbers", details: "Target: Core, shoulders, arms, and stamina.\nReps: 30–40 (3–4 sets)", image: require("../assets/mountain-climber.jpg"), duration: 120 },
-  { name: "Jump Rope", details: "Target: Cardio, calves, coordination, and endurance.\nTime: 1–2 min per round (3–5 rounds)", image: require("../assets/rope.jpg"), duration: 120 }
-];
-
+const workoutsData = {
+  male: {
+    "Weight Loss": [
+      { name: "Burpees", details: "Cardio, legs, core, and arms.\n10–20 reps (3–5 sets)", image: require("../assets/burpees.jpg"), duration: 120 },
+      { name: "Jump Rope", details: "Cardio, calves, endurance.\n1–2 min per round (3–5 rounds)", image: require("../assets/rope.jpg"), duration: 120 },
+      { name: "Mountain Climbers", details: "Core, shoulders, arms, stamina.\n30–40 reps (3–4 sets)", image: require("../assets/mountain-climber.jpg"), duration: 120 },
+      { name: "Squats", details: "Legs, glutes, core.\n20–30 reps (3–5 sets)", image: require("../assets/squats.jpg"), duration: 120 },
+      { name: "Push-Ups", details: "Chest, shoulders, triceps.\n15–25 reps (3–5 sets)", image: require("../assets/pushups.jpg"), duration: 120 },
+    ],
+    "Maintain Weight": [
+      { name: "Plank", details: "Abs, back, shoulders.\nHold 30s–1 min (3 sets)", image: require("../assets/plank.jpg"), duration: 60 },
+      { name: "Push-Ups", details: "Upper body.\n15–25 reps (3–5 sets)", image: require("../assets/pushups.jpg"), duration: 120 },
+      { name: "Jump Rope", details: "Cardio.\n1–2 min per round (3–5 rounds)", image: require("../assets/rope.jpg"), duration: 120 },
+      { name: "Squats", details: "Legs, glutes.\n20–30 reps (3–5 sets)", image: require("../assets/squats.jpg"), duration: 120 },
+      { name: "Burpees", details: "Full body workout.\n10–20 reps (3–5 sets)", image: require("../assets/burpees.jpg"), duration: 120 },
+    ],
+    "Weight Gain": [
+      { name: "Push-Ups", details: "Chest, shoulders, arms.\n20–30 reps (3–5 sets)", image: require("../assets/pushups.jpg"), duration: 120 },
+      { name: "Squats", details: "Legs, glutes.\n25–35 reps (4–5 sets)", image: require("../assets/squats.jpg"), duration: 120 },
+      { name: "Plank", details: "Core, back, endurance.\nHold 1 min (3–4 sets)", image: require("../assets/plank.jpg"), duration: 60 },
+      { name: "Mountain Climbers", details: "Cardio, core.\n40–50 reps (4–5 sets)", image: require("../assets/mountain-climber.jpg"), duration: 120 },
+      { name: "Burpees", details: "Full body.\n15–25 reps (3–4 sets)", image: require("../assets/burpees.jpg"), duration: 120 },
+    ],
+  },
+  female: {
+    "Weight Loss": [
+      { name: "Jump Rope", details: "Cardio, endurance.\n1–2 min per round (3–5 rounds)", image: require("../assets/rope.jpg"), duration: 120 },
+      { name: "Burpees", details: "Full body workout.\n10–20 reps (3–5 sets)", image: require("../assets/burpees.jpg"), duration: 120 },
+      { name: "Plank", details: "Core strength.\nHold 30s–1 min (3 sets)", image: require("../assets/plank.jpg"), duration: 60 },
+      { name: "Mountain Climbers", details: "Cardio, core.\n30–40 reps (3–4 sets)", image: require("../assets/mountain-climber.jpg"), duration: 120 },
+      { name: "Squats", details: "Legs, glutes.\n20–30 reps (3–5 sets)", image: require("../assets/squats.jpg"), duration: 120 },
+    ],
+    "Maintain Weight": [
+      { name: "Squats", details: "Legs, glutes.\n20–30 reps (3–5 sets)", image: require("../assets/squats.jpg"), duration: 120 },
+      { name: "Plank", details: "Core, shoulders.\nHold 30s–1 min (3 sets)", image: require("../assets/plank.jpg"), duration: 60 },
+      { name: "Jump Rope", details: "Cardio, endurance.\n1–2 min per round (3–5 rounds)", image: require("../assets/rope.jpg"), duration: 120 },
+      { name: "Burpees", details: "Full body.\n10–20 reps (3–5 sets)", image: require("../assets/burpees.jpg"), duration: 120 },
+      { name: "Mountain Climbers", details: "Cardio, stamina.\n30–40 reps (3–4 sets)", image: require("../assets/mountain-climber.jpg"), duration: 120 },
+    ],
+    "Weight Gain": [
+      { name: "Squats", details: "Legs, glutes.\n25–35 reps (4–5 sets)", image: require("../assets/squats.jpg"), duration: 120 },
+      { name: "Push-Ups", details: "Upper body.\n15–25 reps (3–5 sets)", image: require("../assets/pushups.jpg"), duration: 120 },
+      { name: "Plank", details: "Core strength.\nHold 1 min (3–4 sets)", image: require("../assets/plank.jpg"), duration: 60 },
+      { name: "Jump Rope", details: "Cardio, endurance.\n1–2 min per round (3–5 rounds)", image: require("../assets/rope.jpg"), duration: 120 },
+      { name: "Burpees", details: "Full body.\n10–20 reps (3–5 sets)", image: require("../assets/burpees.jpg"), duration: 120 },
+    ],
+  },
+};
 export default function WorkoutScreen({ navigation }) {
   const { tasks, setTasks } = useContext(TaskContext);
-  const [currentWorkout, setCurrentWorkout] = useState(0);
   const [cycle, setCycle] = useState(1);
-  const [timeLeft, setTimeLeft] = useState(workouts[0].duration);
   const [loading, setLoading] = useState(false);
+  const [gender, setGender] = useState("");
+  const [type, setType] = useState("");
+  const [workouts, setWorkouts] = useState([]);
+  const [currentWorkout, setCurrentWorkout] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const token = await AsyncStorage.getItem("userToken");
+      if (!token) {
+        Alert.alert("Error", "No token found. Please log in again.");
+        return;
+      }
+      const response = await fetch("http://192.168.76.106:4000/user/profile", {
+        method: "GET",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setGender(data.gender);
+        setType(data.type);
+        setWorkouts(workoutsData[data.gender]?.[data.type] || []);
+      } else {
+        Alert.alert("Error", data.message || "Failed to fetch user profile");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Unable to fetch user profile.");
+    }
+  };
 
   useEffect(() => {
     if (cycle > 3) {
@@ -26,18 +100,20 @@ export default function WorkoutScreen({ navigation }) {
   }, [cycle]);
 
   useEffect(() => {
-    setTimeLeft(workouts[currentWorkout].duration);
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev === 1) {
-          clearInterval(timer);
-          handleNextWorkout();
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [currentWorkout, cycle]);
+    if (started && workouts.length > 0) {
+      setTimeLeft(workouts[currentWorkout].duration);
+      const timer = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev === 1) {
+            clearInterval(timer);
+            handleNextWorkout();
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [currentWorkout, cycle, started]);
 
   const handleNextWorkout = () => {
     setLoading(true);
@@ -58,6 +134,25 @@ export default function WorkoutScreen({ navigation }) {
     }, 2000);
   };
 
+  if (!started) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Ready for your workout?</Text>
+        <Button title="Start Workout" onPress={() => setStarted(true)} />
+      </View>
+    );
+  }
+
+  if (cycle > 3) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>🎉 Workout Completed! 🎉</Text>
+        <Text style={styles.subtitle}>Great job on finishing all cycles!</Text>
+        <Button title="Go Home" onPress={() => navigation.navigate("Home")} />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       {loading ? (
@@ -70,8 +165,8 @@ export default function WorkoutScreen({ navigation }) {
           <Image source={workouts[currentWorkout].image} style={styles.workoutImage} />
           <Text style={styles.workoutTitle}>{workouts[currentWorkout].name}</Text>
           <Text style={styles.workoutDetails}>{workouts[currentWorkout].details}</Text>
-          <Text style={styles.timerText}>Time Left: {timeLeft}s</Text>
-          <Text style={styles.cycleText}>Cycle: {cycle}/3</Text>
+          <Text style={styles.timerText}>⏳ Time Left: {timeLeft}s</Text>
+          <Text style={styles.cycleText}>🔄 Cycle: {cycle}/3</Text>
           <Button title="Next Workout" onPress={handleNextWorkout} />
         </View>
       )}
@@ -88,5 +183,7 @@ const styles = StyleSheet.create({
   timerText: { fontSize: 18, fontWeight: "bold", color: "#FF5722", marginBottom: 10 },
   cycleText: { fontSize: 16, fontWeight: "bold", color: "#4CAF50", marginBottom: 10 },
   loaderContainer: { alignItems: "center" },
-  loadingText: { fontSize: 18, marginTop: 10, color: "#333" }
+  loadingText: { fontSize: 18, marginTop: 10, color: "#333" },
+  title: { fontSize: 26, fontWeight: "bold", marginBottom: 20 },
+  subtitle: { fontSize: 18, color: "#666", marginBottom: 20 }
 });

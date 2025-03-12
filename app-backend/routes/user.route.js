@@ -35,5 +35,12 @@ router.get("/profile", authMiddleware.authUser, userController.getUserProfile);
 
 router.put("/tasks",upload.single("photoFile"), authMiddleware.authUser, userController.updateTasks);
 
+router.put("/height", authMiddleware.authUser, userController.heightMeasure);
+
+router.put("/weight", authMiddleware.authUser, userController.weightMeasure);
+
+router.put("/type", authMiddleware.authUser, userController.typePicker);
+
+router.put("/gender", authMiddleware.authUser, userController.genderPicker);
 
 module.exports = router;

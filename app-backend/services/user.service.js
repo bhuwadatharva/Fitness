@@ -115,3 +115,57 @@ if (typeof user.tasks.task5 !== "object" || user.tasks.task5 === null) {
     throw new Error("Error updating tasks: " + error.message);
   }
 };
+
+
+module.exports.heightMeasure = async (userId, height) => {
+  try {
+    const user = await userModel.findById(userId);
+    if (!user) throw new Error("User not found");
+
+    user.height = height;
+    await user.save();
+    return user;
+  } catch (error) {
+    throw new Error("Error updating height: " + error.message);
+  }
+}
+
+
+module.exports.weightMeasure = async (userId, weight) => {
+  try {
+    const user = await userModel.findById(userId);
+    if (!user) throw new Error("User not found");
+
+    user.weight = weight;
+    await user.save();
+    return user;
+  } catch (error) {
+    throw new Error("Error updating weight: " + error.message);
+  }
+}
+
+module.exports.genderPicker = async (userId, gender) => {
+  try {
+    const user = await userModel.findById(userId);
+    if (!user) throw new Error("User not found");
+
+    user.gender = gender;
+    await user.save();
+    return user;
+} catch (error){
+  throw new Error("Error updating Gender: " + error.message);
+}
+}
+
+module.exports.typePicker = async (userId, type) => {
+  try {
+    const user = await userModel.findById(userId);
+    if (!user) throw new Error("User not found");
+
+    user.type = type;
+    await user.save();
+    return user;
+  } catch (error) {
+    throw new Error("Error updating type: " + error.message);
+  }
+};

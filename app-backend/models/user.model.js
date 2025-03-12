@@ -37,6 +37,20 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  gender: {
+    type: String,
+    Enum: ["Male" , "Female"],
+  },
+  height: {
+    type: String,
+  },
+  weight: {
+    type: String,
+  },
+  type: {
+    type: String,
+    Enum: ["Weight Loss", "Weight Gain", "Maintain Weight"],
+  },
   tasks: {
     task1: {
       type: Number,

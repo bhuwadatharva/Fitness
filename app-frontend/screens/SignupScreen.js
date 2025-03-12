@@ -12,7 +12,9 @@ import {
 import Toast from "react-native-toast-message";
 import axios from "axios"; // Import axios
 
-const SignupScreen = ({ navigation }) => {
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const SignupScreen = ({ route, navigation }) => {
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
@@ -26,44 +28,42 @@ const SignupScreen = ({ navigation }) => {
 
   const handleSignup = async () => {
     const { firstname, lastname, email, password } = formData;
-
-    // Validation
+  
     if (!firstname || !lastname || !email || !password) {
       Toast.show({ type: "error", text1: "Please fill in all fields" });
       return;
     }
-
+  
     try {
-      // Make API call to backend to register user
       const response = await axios.post(
-        `http://192.168.76.106:4000/user/register`,
+        "http://192.168.76.106:4000/user/register",
         {
-          fullname: {
-            firstname,
-            lastname,
-          },
+          fullname: { firstname, lastname },
           email,
           password,
         }
       );
-
-      // Check if the response contains token and user
-      if (response.data.token && response.data.user) {
+  
+      console.log("Signup Response:", response.data); // Debug API response
+  
+      if (response.data.token) {
         Toast.show({ type: "success", text1: "Signup Successful" });
-        // Navigate to login screen
-        navigation.navigate("Height");
+  
+        await AsyncStorage.setItem("registerToken", response.data.token);
+        navigation.navigate("Height", { token: response.data.token });
       } else {
-        Toast.show({
-          type: "error",
-          text1: "Signup failed. Please try again.",
-        });
+        Toast.show({ type: "error", text1: "Signup failed. No token received." });
       }
     } catch (error) {
-      console.error("Error during signup:", error);
-      Toast.show({ type: "error", text1: "Signup failed. Please try again." });
+      console.error("Error during signup:", error.response?.data || error.message);
+      Toast.show({
+        type: "error",
+        text1: "Signup failed",
+        text2: error.response?.data?.message || "Please try again.",
+      });
     }
   };
-
+  
   const { firstname, lastname, email, password } = formData;
 
   return (

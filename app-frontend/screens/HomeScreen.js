@@ -273,7 +273,7 @@ const registerBackgroundTask = async () => {
     </View>
 
     <ScrollView contentContainerStyle={styles.scrollableContent}>
-      <TouchableOpacity style={styles.progressContainer}>
+      <TouchableOpacity style={styles.progressContainer} onPress={() => navigation.navigate("Report")} >
         <Animatable.View style={styles.progressBox} animation="bounceIn" duration={1000}>
           <Progress.Bar progress={progress} width={350} height={30} color="#000000" borderWidth={1} borderRadius={8} />
         </Animatable.View>
